@@ -2,7 +2,7 @@
 // The class responsible for the actual drawing of a face
 //
 // (c) 2003 Michiel 'El Muerte' Hendriks
-// $Id: MarkyActivator.uc,v 1.1 2003/09/09 10:56:50 elmuerte Exp $
+// $Id: MarkyActivator.uc,v 1.2 2003/09/09 23:27:48 elmuerte Exp $
 //==============================================================================
 
 class MarkyActivator extends Info dependson(MarkyMut);
@@ -140,17 +140,8 @@ function Timer()
 			else f++;
 		if (f >= 2)
 		{			
-			if (bNoReturn)
-			{
-				MH.bActive = false;
-				MH.bVisible = false;
-				ShowState = MSS_Hide;
-				SetTimer(0.001, false); // stop the timer again
-			}
-			else {
-				ShowState = MSS_Wait;
-				SetTimer(FMax(fWaitTime, 0.001), true);			
-			}
+			ShowState = MSS_Wait;
+			SetTimer(FMax(fWaitTime, 0.001), true);			
 		}
 	}
 	else if (ShowState == MSS_Hide)
@@ -169,8 +160,17 @@ function Timer()
 	}
 	else if (ShowState == MSS_Wait)
 	{				
-		ShowState = MSS_Hide;
-		SetTimer(FMax(fShowSpeed, 0.001), true);		
+		if (bNoReturn)
+		{
+			MH.bActive = false;
+			MH.bVisible = false;
+			ShowState = MSS_Hide;
+			SetTimer(0.001, false); // stop the timer again
+		}
+		else {
+			ShowState = MSS_Hide;
+			SetTimer(FMax(fShowSpeed, 0.001), true);		
+		}
 	}
 }
 
