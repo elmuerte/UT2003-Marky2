@@ -2,7 +2,7 @@
 // Mutator to load Mark Rein into the game
 //
 // (c) 2003 Michiel 'El Muerte' Hendriks
-// $Id: MarkyMut.uc,v 1.4 2003/09/12 08:50:28 elmuerte Exp $
+// $Id: MarkyMut.uc,v 1.5 2003/09/26 20:30:05 elmuerte Exp $
 //==============================================================================
 
 class MarkyMut extends Mutator config exportstructs;
@@ -22,6 +22,10 @@ class MarkyMut extends Mutator config exportstructs;
 // import Toasty sound, although we don't use it by default
 #exec AUDIO IMPORT FILE="Sounds\toasty.wav" NAME="ToastySound"
 
+// import willhaven
+#exec TEXTURE IMPORT NAME=WillhavenFace FILE=TEXTURES\willhaven.dds ALPHA=1 LODSET=LODSET_Interface
+#exec AUDIO IMPORT FILE="Sounds\nooo.wav" NAME="WillhavenSound"
+
 var MarkyActivator MarkAct;
 
 struct FaceRecord
@@ -37,20 +41,34 @@ struct FaceRecord
 		0: multi kill level (level >= multikill level)
 		1: number of deaths (death % level == 0)
 		2: killing spree level (increase) (0-5)
+		3: number of suicides (suicides % level == 0)
 	*/
 	var byte Type;
 	/** percentages where to show the image */
 	var float fFromX, fFromY, fToX, fToY;
 	/** number of stemps to take at the time */
-	var int StepSize;
+	var float StepSize;
 	/** interval between each step */
 	var float fShowSpeed;
 	/** time to show the picture */
 	var float fWaitTime;
 	/** Scale the image to the screen */
 	var float fImageScale;
-	/** don't return to from location */
-	var bool bNoReturn;
+	/**
+		Animation type
+		0: move from source to destination and back
+				source: fFromX, fFromY
+				dest:		fToX, fToY
+		1: only move from source to destination
+				source: fFromX, fFromY
+				dest:		fToX, fToY
+		2: zoom in and out
+				start size: fFromX,	end size: tToX
+				start alpha: fFromY, end alpha fToY
+		3: zoom in only
+
+	*/
+	var byte Animation;
 };
 /** 
 	Faces to show in diffirent configurations 
@@ -84,11 +102,12 @@ defaultproperties
   RemoteRole=ROLE_SimulatedProxy
   bAlwaysRelevant=true
 
-	Faces(0)=(Face=Texture'Marky2.MarkReinFace',Voice=Sound'Marky2.MarkReinSound',Level=2,Type=0,fFromX=1,fFromY=0.60,fToX=0.70,fToY=0.60,fShowSpeed=0.01,fWaitTime=2,StepSize=5,fImageScale=0.4)
-	Faces(1)=(Face=Texture'Marky2.CliffyBFace',Voice=Sound'Marky2.WhatsUpDocSound',Level=2,Type=2,fFromX=1,fFromY=0.60,fToX=0.70,fToY=0.60,fShowSpeed=0.01,fWaitTime=2,StepSize=5,fImageScale=0.35)
-	Faces(2)=(Face=Texture'Marky2.DopefishFace',Voice=Sound'Marky2.DopefishSound',Level=5,Type=1,fFromX=1,fFromY=0.40,fToX=-0.1,fToY=0.50,fShowSpeed=0.01,StepSize=4,fImageScale=0.2,bNoReturn=true)
+	Faces(0)=(Face=Texture'Marky3.MarkReinFace',Voice=Sound'Marky3.MarkReinSound',Level=2,Type=0,fFromX=1,fFromY=0.60,fToX=0.70,fToY=0.60,fShowSpeed=0.01,fWaitTime=2,StepSize=5,fImageScale=0.4,Animation=0)
+	Faces(1)=(Face=Texture'Marky3.CliffyBFace',Voice=Sound'Marky3.WhatsUpDocSound',Level=2,Type=2,fFromX=1,fFromY=0.60,fToX=0.70,fToY=0.60,fShowSpeed=0.01,fWaitTime=2,StepSize=5,fImageScale=0.35,Animation=0)
+	Faces(2)=(Face=Texture'Marky3.DopefishFace',Voice=Sound'Marky3.DopefishSound',Level=5,Type=1,fFromX=1,fFromY=0.40,fToX=-0.1,fToY=0.50,fShowSpeed=0.01,StepSize=4,fImageScale=0.2,Animation=1)
+	Faces(3)=(Face=Texture'Marky3.WillhavenFace',Voice=Sound'Marky3.WillhavenSound',Level=1,Type=3,fFromX=0.001,fFromY=0,fToX=1,fToY=1,fShowSpeed=0.01,StepSize=3,fImageScale=0.4,Animation=2)
 
 	GroupName="Marky"
-	FriendlyName="Marky v2"
+	FriendlyName="Marky v3"
 	Description="Display Mark Rein's face on special events"
 }

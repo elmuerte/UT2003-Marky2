@@ -2,7 +2,7 @@
 // The class responsible for the actual drawing of a face
 //
 // (c) 2003 Michiel 'El Muerte' Hendriks
-// $Id: MarkyActivator.uc,v 1.3 2003/09/10 09:00:25 elmuerte Exp $
+// $Id: MarkyActivator.uc,v 1.4 2003/09/26 20:30:05 elmuerte Exp $
 //==============================================================================
 
 class MarkyActivator extends Info dependson(MarkyMut);
@@ -14,7 +14,9 @@ var protected float fModX, fModY;
 var protected float fFromX, fFromY, fToX, fToY;
 var protected float fShowSpeed;
 var protected float fWaitTime;
+var protected float fImageScale;
 var protected bool bNoReturn;
+var protected byte Animation;
 
 var array< MarkyMut.FaceRecord > Faces;
 var array<int> LastLevels;
@@ -35,14 +37,18 @@ function Mutate(string MutateString)
 {
 	local int i;
 	i = int(Mid(MutateString, InStr(MutateString, " ")+1));
-	if ((i < 0) || (i >= Faces.length)) return;
+	if ((i < 0) || (i >= Faces.length))
+	{
+		log("Warning: no such marky:"@i);
+		return;
+	}
 	ShowMarky(i);
 }
 
 event Tick(float delta)
 {
 	local PlayerController PC;
-	local int i, curMKL, curDEATHS, curV;
+	local int i, curMKL, curDEATHS, curV, curSUIC;
 
 	PC = Level.GetLocalPlayerController();	
 	if ( PC != None && !PC.PlayerReplicationInfo.bIsSpectator)
@@ -54,6 +60,9 @@ event Tick(float delta)
 		else {
 			curMKL = UnrealPlayer(PC).MultiKillLevel;
 			curDEATHS = PC.PlayerReplicationInfo.Deaths;
+			if (TeamPlayerReplicationInfo(PC.PlayerReplicationInfo) != none)
+				curSUIC = TeamPlayerReplicationInfo(PC.PlayerReplicationInfo).Suicides;
+				else curSUIC = 0;
 			for (i = 0; i < Faces.length; i++)
 			{
 				if (Faces[i].Type == 0) // multi kill
@@ -84,6 +93,14 @@ event Tick(float delta)
 						LastLevels[i] = curV;
 					}
 				}
+				else if (Faces[i].Type == 3) // Suicides
+				{
+					if (LastLevels[i] < curSUIC)
+					{
+						if (curSUIC % Faces[i].Level == 0) ShowMarky(i);
+					}
+					LastLevels[i] = curSUIC;
+				}
 			}
 		}
 	}
@@ -109,11 +126,27 @@ function ShowMarky(int ActiveFace)
 		fToY = Faces[ActiveFace].fToY;
 		fShowSpeed = Faces[ActiveFace].fShowSpeed;
 		fWaitTime = Faces[ActiveFace].fWaitTime;
-		bNoReturn = Faces[ActiveFace].bNoReturn;
+		fImageScale = Faces[ActiveFace].fImageScale;
+		Animation = Faces[ActiveFace].Animation;
 
-		MH.ImgX = Faces[ActiveFace].fFromX;
-		MH.ImgY = Faces[ActiveFace].fFromY;
-		MH.ImageScale = Faces[ActiveFace].fImageScale;
+		if (Animation == 0 || Animation == 1)
+		{
+			MH.bCenter = false;
+			MH.ImageAlpha = 1;
+			MH.ImgX = fFromX;
+			MH.ImgY = fFromY;
+			MH.ImageScale = fImageScale;
+		}
+		if (Animation == 2 || Animation == 3)
+		{
+			MH.bCenter = true;
+			MH.ImageAlpha = fFromY;
+			fModX = fModX*fImageScale;
+			fFromX = fFromX*fImageScale;
+			fToX = fToX*fImageScale;
+			MH.ImageScale = fFromX;
+		}
+
 		MH.bActive = true;
 		MH.bVisible = true;
 		MH.Image = Faces[ActiveFace].Face;
@@ -134,10 +167,21 @@ function Timer()
 	f = 0;
 	if (ShowState == MSS_Show)
 	{
-		if ((MH.ImgX < fToX && fModX > 0) || (MH.ImgX > fToX && fModX < 0)) MH.ImgX += fModX;
-			else f++;
-		if ((MH.ImgY < fToY && fModY > 0) || (MH.ImgY > fToY && fModY < 0)) MH.ImgY += fModY;
-			else f++;
+		if (Animation == 0 || Animation == 1)
+		{
+			if ((MH.ImgX < fToX && fModX > 0) || (MH.ImgX > fToX && fModX < 0)) MH.ImgX += fModX;
+				else f++;
+			if ((MH.ImgY < fToY && fModY > 0) || (MH.ImgY > fToY && fModY < 0)) MH.ImgY += fModY;
+				else f++;
+		}
+		else if (Animation == 2 || Animation == 3)
+		{
+			if ((MH.ImageScale < fToX && fModX > 0) || (MH.ImageScale > fToX && fModX < 0)) MH.ImageScale += fModX;
+				else f++;
+			if ((MH.ImageAlpha < fToY && fModY > 0) || (MH.ImageAlpha > fToY && fModY < 0)) MH.ImageAlpha += fModY;
+				else f++;
+		}
+
 		if (f >= 2)
 		{			
 			ShowState = MSS_Wait;
@@ -146,10 +190,20 @@ function Timer()
 	}
 	else if (ShowState == MSS_Hide)
 	{
-		if ((MH.ImgX > fFromX && fModX > 0) || (MH.ImgX < fFromX && fModX < 0)) MH.ImgX -= fModX;
-			else f++;
-		if ((MH.ImgY > fFromY && fModY > 0) || (MH.ImgY < fFromY && fModY < 0)) MH.ImgY -= fModY;
-			else f++;
+		if (Animation == 0 || Animation == 1)
+		{
+			if ((MH.ImgX > fFromX && fModX > 0) || (MH.ImgX < fFromX && fModX < 0)) MH.ImgX -= fModX;
+				else f++;
+			if ((MH.ImgY > fFromY && fModY > 0) || (MH.ImgY < fFromY && fModY < 0)) MH.ImgY -= fModY;
+				else f++;
+		}
+		else if (Animation == 2 || Animation == 3)
+		{
+			if ((MH.ImageScale > fFromX && fModX > 0) || (MH.ImageScale < fFromX && fModX < 0)) MH.ImageScale -= fModX;
+				else f++;
+			if ((MH.ImageAlpha > fFromY && fModY > 0) || (MH.ImageAlpha < fFromY && fModY < 0)) MH.ImageAlpha -= fModY;
+				else f++;
+		}
 
 		if (f >= 2)
 		{	
@@ -160,7 +214,7 @@ function Timer()
 	}
 	else if (ShowState == MSS_Wait)
 	{				
-		if (bNoReturn)
+		if (Animation == 1 || Animation == 3)
 		{
 			MH.bActive = false;
 			MH.bVisible = false;
@@ -178,6 +232,6 @@ defaultproperties
 {
   RemoteRole=ROLE_None
   bAlwaysTick=true
-	MHClass="Marky2.MarkyHud"	
+	MHClass="Marky3.MarkyHud"	
 	ShowState=MSS_Hide
 }
