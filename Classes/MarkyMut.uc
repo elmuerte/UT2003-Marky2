@@ -2,7 +2,7 @@
 // Mutator to load Mark Rein into the game
 //
 // (c) 2003 Michiel 'El Muerte' Hendriks
-// $Id: MarkyMut.uc,v 1.2 2003/09/09 20:42:40 elmuerte Exp $
+// $Id: MarkyMut.uc,v 1.3 2003/09/10 09:00:25 elmuerte Exp $
 //==============================================================================
 
 class MarkyMut extends Mutator config exportstructs;
@@ -10,12 +10,17 @@ class MarkyMut extends Mutator config exportstructs;
 // import Mark Rein
 #exec TEXTURE IMPORT NAME=MarkReinFace FILE=TEXTURES\marky.dds ALPHA=1 LODSET=LODSET_Interface
 #exec AUDIO IMPORT FILE="Sounds\twoweeks.WAV" NAME="MarkReinSound"
+
 // import CliffyB
 #exec TEXTURE IMPORT NAME=CliffyBFace FILE=TEXTURES\cliffyb.dds ALPHA=1 LODSET=LODSET_Interface
-//# exec AUDIO IMPORT FILE="Sounds\markrein16.WAV" NAME="MarkReinSound"
+#exec AUDIO IMPORT FILE="Sounds\WhatsUpDoc.wav" NAME="WhatsUpDocSound"
+
 // import Dopefish
 #exec TEXTURE IMPORT NAME=DopefishFace FILE=TEXTURES\dopefish.dds ALPHA=1 LODSET=LODSET_Interface
-#exec AUDIO IMPORT FILE="Sounds\dopefish.WAV" NAME="DopefishSound"
+#exec AUDIO IMPORT FILE="Sounds\dopefish.wav" NAME="DopefishSound"
+
+// import Toasty sound, although we don't use it by default
+#exec AUDIO IMPORT FILE="Sounds\toasty.wav" NAME="ToastySound"
 
 var MarkyActivator MarkAct;
 
@@ -29,8 +34,8 @@ struct FaceRecord
 	var int Level;
 	/** 
 		type of event to be triggered at 
-		0: multi kill level (level >=)
-		1: number of deaths (level ==)
+		0: multi kill level (level >= multikill level)
+		1: number of deaths (death % level == 0)
 		2: killing spree level (increase) (0-5)
 	*/
 	var byte Type;
@@ -80,7 +85,7 @@ defaultproperties
   bAlwaysRelevant=true
 
 	Faces(0)=(Face=Texture'Marky2.MarkReinFace',Voice=Sound'Marky2.MarkReinSound',Level=2,Type=0,fFromX=1,fFromY=0.60,fToX=0.70,fToY=0.60,fShowSpeed=0.01,fWaitTime=2,StepSize=5,fImageScale=0.4)
-	Faces(1)=(Face=Texture'Marky2.CliffyBFace',Voice=none,Level=2,Type=2,fFromX=1,fFromY=0.60,fToX=0.70,fToY=0.60,fShowSpeed=0.01,fWaitTime=2,StepSize=5,fImageScale=0.35)
+	Faces(1)=(Face=Texture'Marky2.CliffyBFace',Voice=Sound'Marky2.WhatsUpDocSound',Level=2,Type=2,fFromX=1,fFromY=0.60,fToX=0.70,fToY=0.60,fShowSpeed=0.01,fWaitTime=2,StepSize=5,fImageScale=0.35)
 	Faces(2)=(Face=Texture'Marky2.DopefishFace',Voice=Sound'Marky2.DopefishSound',Level=5,Type=1,fFromX=1,fFromY=0.40,fToX=-0.1,fToY=0.50,fShowSpeed=0.01,StepSize=4,fImageScale=0.2,bNoReturn=true)
 
 	GroupName="Marky"

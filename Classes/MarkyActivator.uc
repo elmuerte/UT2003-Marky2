@@ -2,7 +2,7 @@
 // The class responsible for the actual drawing of a face
 //
 // (c) 2003 Michiel 'El Muerte' Hendriks
-// $Id: MarkyActivator.uc,v 1.2 2003/09/09 23:27:48 elmuerte Exp $
+// $Id: MarkyActivator.uc,v 1.3 2003/09/10 09:00:25 elmuerte Exp $
 //==============================================================================
 
 class MarkyActivator extends Info dependson(MarkyMut);
@@ -68,7 +68,7 @@ event Tick(float delta)
 				{
 					if (LastLevels[i] < curDEATHS)
 					{
-						if (curDEATHS == Faces[i].Level) ShowMarky(i);
+						if (curDEATHS % Faces[i].Level == 0) ShowMarky(i);
 					}
 					LastLevels[i] = curDEATHS;
 				}
