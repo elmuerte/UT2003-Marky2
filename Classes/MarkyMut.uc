@@ -2,14 +2,14 @@
 // Mutator to load Mark Rein into the game
 //
 // (c) 2003 Michiel 'El Muerte' Hendriks
-// $Id: MarkyMut.uc,v 1.3 2003/09/10 09:00:25 elmuerte Exp $
+// $Id: MarkyMut.uc,v 1.4 2003/09/12 08:50:28 elmuerte Exp $
 //==============================================================================
 
 class MarkyMut extends Mutator config exportstructs;
 
 // import Mark Rein
 #exec TEXTURE IMPORT NAME=MarkReinFace FILE=TEXTURES\marky.dds ALPHA=1 LODSET=LODSET_Interface
-#exec AUDIO IMPORT FILE="Sounds\twoweeks.WAV" NAME="MarkReinSound"
+#exec AUDIO IMPORT FILE="Sounds\WHATTHE.WAV" NAME="MarkReinSound"
 
 // import CliffyB
 #exec TEXTURE IMPORT NAME=CliffyBFace FILE=TEXTURES\cliffyb.dds ALPHA=1 LODSET=LODSET_Interface
