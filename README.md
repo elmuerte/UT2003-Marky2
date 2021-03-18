@@ -13,7 +13,7 @@ Copy the Marky3.u and Marky3.int file to the UT2003 System directory. And instal
 
 Note: remove all traces of the previous release
 
-#Configuration
+# Configuration
 
 You don't need to configure anything for it to work. However this mutator is higly configurable. Below is the default configuration. You can add more faces if you want Each entry consists out of the following properties:
 
